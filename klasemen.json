@@ -1,0 +1,182 @@
+[
+  {
+    "pos": "1",
+    "klub": "PERSIJA JAKARTA",
+    "m": "9",
+    "mg": "7",
+    "s": "0",
+    "k": "2",
+    "sg": "11",
+    "poin": "21"
+  },
+  {
+    "pos": "2",
+    "klub": "DEWA UNITED BANTEN FC",
+    "m": "9",
+    "mg": "6",
+    "s": "2",
+    "k": "1",
+    "sg": "4",
+    "poin": "20"
+  },
+  {
+    "pos": "3",
+    "klub": "MADURA UNITED FC",
+    "m": "9",
+    "mg": "6",
+    "s": "1",
+    "k": "2",
+    "sg": "6",
+    "poin": "19"
+  },
+  {
+    "pos": "4",
+    "klub": "BALI UNITED FC",
+    "m": "8",
+    "mg": "5",
+    "s": "1",
+    "k": "2",
+    "sg": "14",
+    "poin": "16"
+  },
+  {
+    "pos": "5",
+    "klub": "PERSIB BANDUNG",
+    "m": "8",
+    "mg": "5",
+    "s": "1",
+    "k": "2",
+    "sg": "7",
+    "poin": "16"
+  },
+  {
+    "pos": "6",
+    "klub": "PERSITA",
+    "m": "8",
+    "mg": "4",
+    "s": "3",
+    "k": "1",
+    "sg": "6",
+    "poin": "15"
+  },
+  {
+    "pos": "7",
+    "klub": "PERSEBAYA SURABAYA",
+    "m": "9",
+    "mg": "3",
+    "s": "4",
+    "k": "2",
+    "sg": "2",
+    "poin": "13"
+  },
+  {
+    "pos": "8",
+    "klub": "BHAYANGKARA LAMPUNG FC",
+    "m": "8",
+    "mg": "2",
+    "s": "5",
+    "k": "1",
+    "sg": "1",
+    "poin": "11"
+  },
+  {
+    "pos": "9",
+    "klub": "GARUDAYAKSA FC",
+    "m": "9",
+    "mg": "3",
+    "s": "2",
+    "k": "4",
+    "sg": "-4",
+    "poin": "11"
+  },
+  {
+    "pos": "10",
+    "klub": "JAVA UNITED FC",
+    "m": "8",
+    "mg": "3",
+    "s": "3",
+    "k": "2",
+    "sg": "2",
+    "poin": "10"
+  },
+  {
+    "pos": "11",
+    "klub": "PERSIK KEDIRI",
+    "m": "8",
+    "mg": "3",
+    "s": "1",
+    "k": "4",
+    "sg": "-2",
+    "poin": "10"
+  },
+  {
+    "pos": "12",
+    "klub": "BORNEO FC SAMARINDA",
+    "m": "8",
+    "mg": "3",
+    "s": "1",
+    "k": "4",
+    "sg": "-2",
+    "poin": "10"
+  },
+  {
+    "pos": "13",
+    "klub": "PSM MAKASSAR",
+    "m": "9",
+    "mg": "2",
+    "s": "4",
+    "k": "3",
+    "sg": "-4",
+    "poin": "10"
+  },
+  {
+    "pos": "14",
+    "klub": "AREMA FC",
+    "m": "9",
+    "mg": "2",
+    "s": "3",
+    "k": "4",
+    "sg": "-3",
+    "poin": "9"
+  },
+  {
+    "pos": "15",
+    "klub": "ISENMULANG KALTENG FC",
+    "m": "9",
+    "mg": "2",
+    "s": "2",
+    "k": "5",
+    "sg": "-12",
+    "poin": "6"
+  },
+  {
+    "pos": "16",
+    "klub": "PSIM YOGYAKARTA",
+    "m": "9",
+    "mg": "1",
+    "s": "2",
+    "k": "6",
+    "sg": "-8",
+    "poin": "5"
+  },
+  {
+    "pos": "17",
+    "klub": "PSS SLEMAN",
+    "m": "8",
+    "mg": "1",
+    "s": "1",
+    "k": "6",
+    "sg": "-5",
+    "poin": "4"
+  },
+  {
+    "pos": "18",
+    "klub": "PERSIJAP JEPARA",
+    "m": "9",
+    "mg": "0",
+    "s": "2",
+    "k": "7",
+    "sg": "-13",
+    "poin": "2"
+  }
+]
