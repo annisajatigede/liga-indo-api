@@ -1,0 +1,56 @@
+[
+  {
+    "home": "PSIM YOGYAKARTA",
+    "away": "DEWA UNITED BANTEN FC",
+    "info": "1:2",
+    "status": "FT"
+  },
+  {
+    "home": "MADURA UNITED FC",
+    "away": "AREMA FC",
+    "info": "3:0",
+    "status": "FT"
+  },
+  {
+    "home": "BORNEO FC SAMARINDA",
+    "away": "PSM MAKASSAR",
+    "info": "1:1",
+    "status": "FT"
+  },
+  {
+    "home": "PERSIJAP JEPARA",
+    "away": "GARUDAYAKSA FC",
+    "info": "1:2",
+    "status": "FT"
+  },
+  {
+    "home": "PERSITA",
+    "away": "PERSIK KEDIRI",
+    "info": "0:1",
+    "status": "FT"
+  },
+  {
+    "home": "PERSIJA JAKARTA",
+    "away": "PERSEBAYA SURABAYA",
+    "info": "1:0",
+    "status": "FT"
+  },
+  {
+    "home": "PSS SLEMAN",
+    "away": "BHAYANGKARA LAMPUNG FC",
+    "info": "0:0",
+    "status": "FT"
+  },
+  {
+    "home": "BALI UNITED FC",
+    "away": "ISENMULANG KALTENG FC",
+    "info": "3:0",
+    "status": "FT"
+  },
+  {
+    "home": "JAVA UNITED FC",
+    "away": "PERSIB BANDUNG",
+    "info": "19:00 WIB",
+    "status": "UPCOMING"
+  }
+]
