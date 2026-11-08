@@ -8,7 +8,7 @@ async function ambilSemuaData() {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
   };
 
-  // --- 1. SCRAPE DATA KLASEMEN ---
+  // --- 1. SCRAPE KLASEMEN UTAMA ---
   try {
     const resTable = await fetch(urlKlasemen, { headers });
     if (resTable.ok) {
@@ -40,14 +40,14 @@ async function ambilSemuaData() {
     }
   } catch (e) { console.error("Error Klasemen:", e); }
 
-  // --- 2. SCRAPE DATA LIVE SCORE (DARI HALAMAN DEPAN) ---
+  // --- 2. SCRAPE JADWAL & LIVE SCORE (ANTI-GAGAL) ---
   try {
     const resHome = await fetch(urlHome, { headers });
     if (resHome.ok) {
       const htmlHome = await resHome.text();
       let dataJadwal = [];
       
-      // Kamus konversi singkatan kode klub ke nama lengkap resmi
+      // Kamus resmi pemetaan kode singkat ke nama lengkap klub BRI Super League
       const mapKlub = {
         "PSJ": "PERSIJA JAKARTA", "DUB": "DEWA UNITED BANTEN FC", "MDR": "MADURA UNITED FC",
         "BLI": "BALI UNITED FC", "SIB": "PERSIB BANDUNG", "PTR": "PERSITA",
@@ -57,36 +57,54 @@ async function ambilSemuaData() {
         "PSS": "PSS SLEMAN", "JAP": "PERSIJAP JEPARA", "BFC": "BHAYANGKARA LAMPUNG FC"
       };
 
-      // Mencari baris teks pertandingan (contoh: BLI 0:0 x KDR atau JVU 19:00 WIB x SIB)
-      const matches = htmlHome.match(/([A-Z]{3})\s+(\d{1,2}:\d{1,2}(?:\s*WIB)?)\s*x\s*([A-Z]{3})/gi);
-      
-      if (matches) {
-        matches.forEach((matchText) => {
-          const parts = matchText.match(/([A-Z]{3})\s+([\d\:\sWIB]+)\s*x\s*([A-Z]{3})/i);
-          if (parts) {
-            const homeCode = parts[1].toUpperCase();
-            const timeOrScore = parts[2].trim();
-            const awayCode = parts[3].toUpperCase();
-            
-            // Cek apakah pertandingan sedang berjalan (punya indikator LIVE di teks sekitarnya)
-            const isLive = htmlHome.includes(matchText + "\nLIVE") || htmlHome.includes(timeOrScore + "<\/div>\n<div[^>]*>LIVE");
+      // Pecah seluruh dokumen halaman utama berdasarkan blok pembungkus pertandingan "Selengkapnya"
+      const matchBlocks = htmlHome.split(/Selengkapnya/i);
 
-            dataJadwal.push({
-              home: mapKlub[homeCode] || homeCode,
-              away: mapKlub[awayCode] || awayCode,
-              info: timeOrScore,
-              status: isLive ? "LIVE" : (timeOrScore.includes("WIB") ? "UPCOMING" : "FT")
-            });
+      matchBlocks.forEach((block) => {
+        // Membersihkan tag HTML di dalam blok pertandingan agar menjadi teks polos terurut
+        const cleanBlockText = block.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+        
+        // Pola regex mendeteksi singkatan klub kiri, skor/waktu di tengah, dan singkatan klub kanan
+        // Contoh teks hasil pembersihan: "BOR 1:1 PSM" atau "JVU 19:00 WIB SIB"
+        const matchInfo = cleanBlockText.match(/\b([A-Z]{3})\s+(\d{1,2}:\d{1,2}(?:\s*WIB)?)\s+([A-Z]{3})\b/i);
+        
+        if (matchInfo) {
+          const homeCode = matchInfo[1].toUpperCase();
+          const infoText = matchInfo[2].trim();
+          const awayCode = matchInfo[3].toUpperCase();
+
+          // Pastikan kode 3 huruf tersebut memang terdaftar di dalam kamus klub Liga Indonesia
+          if (mapKlub[homeCode] && mapKlub[awayCode]) {
+            // Jika di dalam blok teks yang sama terdapat kata "LIVE", maka tandai statusnya sebagai LIVE
+            let matchStatus = "FT";
+            if (infoText.includes("WIB")) {
+              matchStatus = "UPCOMING";
+            } else if (cleanBlockText.toUpperCase().includes("LIVE")) {
+              matchStatus = "LIVE";
+            }
+
+            // Mencegah duplikasi entri pertandingan yang sama
+            const isExist = dataJadwal.some(m => m.home === mapKlub[homeCode]);
+            if (!isExist) {
+              dataJadwal.push({
+                home: mapKlub[homeCode],
+                away: mapKlub[awayCode],
+                info: infoText,
+                status: matchStatus
+              });
+            }
           }
-        });
-      }
-      
+        }
+      });
+
       if (dataJadwal.length > 0) {
         fs.writeFileSync('./jadwal.json', JSON.stringify(dataJadwal, null, 2));
-        console.log("Berhasil memperbarui jadwal.json");
+        console.log(`SUKSES: Berhasil membuat jadwal.json dengan ${dataJadwal.length} pertandingan.`);
+      } else {
+        console.log("GAGAL: Karakter penanda jadwal tidak ditemukan di halaman depan.");
       }
     }
-  } catch (e) { console.error("Error Jadwal:", e); }
+  } catch (e) { console.error("Error Scraper Jadwal:", e); }
 }
 
 ambilSemuaData();
