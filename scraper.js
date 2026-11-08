@@ -39,13 +39,19 @@ async function ambilSemuaData() {
     }
   } catch (e) { console.error("Error Klasemen:", e); }
 
-  // --- 2. SCRAPE JADWAL DENGAN DETEKSI TANGGAL OTOMATIS ---
+  // --- 2. SCRAPE JADWAL DENGAN PENYARINGAN TANGGAL KATA KUNCI (PASTI MASUK) ---
   try {
     const resHome = await fetch(urlHome, { headers });
     if (resHome.ok) {
       const htmlHome = await resHome.text();
-      let dataJadwal = [];
       
+      // Bersihkan seluruh kode HTML menjadi baris teks polos terurut kebawah
+      const cleanText = htmlHome.replace(/<[^>]*>/g, '\n').replace(/\r/g, '');
+      const textLines = cleanText.split('\n');
+      
+      let dataJadwal = [];
+      let tanggalTerdeteksi = "8 November 2026"; // Default fallback hari ini jika baris terlewat
+
       const mapKlub = {
         "PSJ": "PERSIJA JAKARTA", "DUB": "DEWA UNITED BANTEN FC", "MDR": "MADURA UNITED FC",
         "BLI": "BALI UNITED FC", "SIB": "PERSIB BANDUNG", "PTR": "PERSITA",
@@ -55,42 +61,43 @@ async function ambilSemuaData() {
         "PSS": "PSS SLEMAN", "JAP": "PERSIJAP JEPARA", "BFC": "BHAYANGKARA LAMPUNG FC"
       };
 
-      // Pecah halaman berdasarkan blok tulisan "Selengkapnya"
-      const matchBlocks = htmlHome.split(/Selengkapnya/i);
-      
-      // Variabel penampung tanggal aktif saat mendaki baris teks halaman
-      let tanggalAktif = "";
+      for (let i = 0; i < textLines.length; i++) {
+        let line = textLines[i].trim();
+        if (line === "") continue;
 
-      matchBlocks.forEach((block) => {
-        // Bersihkan kode tag HTML agar menjadi deretan teks polos terurut
-        const cleanBlockText = block.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-        
-        // Cari teks tanggal di dalam blok ini (Contoh mendeteksi: "8 November 2026")
-        const dateMatch = cleanBlockText.match(/(\d{1,2}\s+(?:Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4})/i);
+        // Taktik 1: Cari baris teks yang merupakan Tanggal (Contoh: "7 November 2026")
+        let dateMatch = line.match(/^(\d{1,2}\s+(?:Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4})$/i);
         if (dateMatch) {
-          tanggalAktif = dateMatch[1];
+          tanggalTerdeteksi = dateMatch[1].trim();
+          continue;
         }
 
-        // Cari pola struktur pertandingan
-        const matchInfo = cleanBlockText.match(/\b([A-Z]{3})\s+(\d{1,2}:\d{1,2}(?:\s*WIB)?)\s+([A-Z]{3})\b/i);
-        
+        // Taktik 2: Cari baris teks pertandingan yang memuat kode klub (Contoh: "JVU 19:00 WIB x SIB")
+        let matchInfo = line.match(/\b([A-Z]{3})\s+(\d{1,2}:\d{1,2}(?:\s*WIB)?)\s*x\s*([A-Z]{3})\b/i);
         if (matchInfo) {
-          const homeCode = matchInfo[1].toUpperCase();
-          const infoText = matchInfo[2].trim();
-          const awayCode = matchInfo[3].toUpperCase();
+          let homeCode = matchInfo[1].toUpperCase();
+          let infoText = matchInfo[2].trim();
+          let awayCode = matchInfo[3].toUpperCase();
 
           if (mapKlub[homeCode] && mapKlub[awayCode]) {
             let matchStatus = "FT";
             if (infoText.includes("WIB")) {
               matchStatus = "UPCOMING";
-            } else if (cleanBlockText.toUpperCase().includes("LIVE")) {
-              matchStatus = "LIVE";
+            } else {
+              // Jika di baris-baris sekitarnya ada kata LIVE, set status LIVE
+              for (let j = Math.max(0, i-4); j <= Math.min(textLines.length-1, i+4); j++) {
+                if (textLines[j].toUpperCase().includes("LIVE")) {
+                  matchStatus = "LIVE";
+                  break;
+                }
+              }
             }
 
-            const isExist = dataJadwal.some(m => m.home === mapKlub[homeCode]);
+            // Mencegah duplikasi data pertandingan
+            let isExist = dataJadwal.some(m => m.home === mapKlub[homeCode]);
             if (!isExist) {
               dataJadwal.push({
-                tanggal: tanggalAktif || "Hari Ini", // Memasukkan tanggal ke dalam JSON
+                tanggal: tanggalTerdeteksi, // Tanggal dipastikan masuk kesini
                 home: mapKlub[homeCode],
                 away: mapKlub[awayCode],
                 info: infoText,
@@ -99,11 +106,11 @@ async function ambilSemuaData() {
             }
           }
         }
-      });
+      }
 
       if (dataJadwal.length > 0) {
         fs.writeFileSync('./jadwal.json', JSON.stringify(dataJadwal, null, 2));
-        console.log(`Berhasil menulis jadwal.json lengkap dengan tanggal.`);
+        console.log(`SUKSES: jadwal.json berhasil dibuat dengan ${dataJadwal.length} laga.`);
       }
     }
   } catch (e) { console.error("Error Scraper Jadwal:", e); }
