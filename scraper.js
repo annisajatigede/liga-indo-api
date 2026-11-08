@@ -35,19 +35,17 @@ async function ambilSemuaData() {
       });
       if (dataKlasemen.length > 0) {
         fs.writeFileSync('./klasemen.json', JSON.stringify(dataKlasemen, null, 2));
-        console.log("Berhasil memperbarui klasemen.json");
       }
     }
   } catch (e) { console.error("Error Klasemen:", e); }
 
-  // --- 2. SCRAPE JADWAL & LIVE SCORE (ANTI-GAGAL) ---
+  // --- 2. SCRAPE JADWAL DENGAN DETEKSI TANGGAL OTOMATIS ---
   try {
     const resHome = await fetch(urlHome, { headers });
     if (resHome.ok) {
       const htmlHome = await resHome.text();
       let dataJadwal = [];
       
-      // Kamus resmi pemetaan kode singkat ke nama lengkap klub BRI Super League
       const mapKlub = {
         "PSJ": "PERSIJA JAKARTA", "DUB": "DEWA UNITED BANTEN FC", "MDR": "MADURA UNITED FC",
         "BLI": "BALI UNITED FC", "SIB": "PERSIB BANDUNG", "PTR": "PERSITA",
@@ -57,15 +55,23 @@ async function ambilSemuaData() {
         "PSS": "PSS SLEMAN", "JAP": "PERSIJAP JEPARA", "BFC": "BHAYANGKARA LAMPUNG FC"
       };
 
-      // Pecah seluruh dokumen halaman utama berdasarkan blok pembungkus pertandingan "Selengkapnya"
+      // Pecah halaman berdasarkan blok tulisan "Selengkapnya"
       const matchBlocks = htmlHome.split(/Selengkapnya/i);
+      
+      // Variabel penampung tanggal aktif saat mendaki baris teks halaman
+      let tanggalAktif = "";
 
       matchBlocks.forEach((block) => {
-        // Membersihkan tag HTML di dalam blok pertandingan agar menjadi teks polos terurut
+        // Bersihkan kode tag HTML agar menjadi deretan teks polos terurut
         const cleanBlockText = block.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
         
-        // Pola regex mendeteksi singkatan klub kiri, skor/waktu di tengah, dan singkatan klub kanan
-        // Contoh teks hasil pembersihan: "BOR 1:1 PSM" atau "JVU 19:00 WIB SIB"
+        // Cari teks tanggal di dalam blok ini (Contoh mendeteksi: "8 November 2026")
+        const dateMatch = cleanBlockText.match(/(\d{1,2}\s+(?:Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s+\d{4})/i);
+        if (dateMatch) {
+          tanggalAktif = dateMatch[1];
+        }
+
+        // Cari pola struktur pertandingan
         const matchInfo = cleanBlockText.match(/\b([A-Z]{3})\s+(\d{1,2}:\d{1,2}(?:\s*WIB)?)\s+([A-Z]{3})\b/i);
         
         if (matchInfo) {
@@ -73,9 +79,7 @@ async function ambilSemuaData() {
           const infoText = matchInfo[2].trim();
           const awayCode = matchInfo[3].toUpperCase();
 
-          // Pastikan kode 3 huruf tersebut memang terdaftar di dalam kamus klub Liga Indonesia
           if (mapKlub[homeCode] && mapKlub[awayCode]) {
-            // Jika di dalam blok teks yang sama terdapat kata "LIVE", maka tandai statusnya sebagai LIVE
             let matchStatus = "FT";
             if (infoText.includes("WIB")) {
               matchStatus = "UPCOMING";
@@ -83,10 +87,10 @@ async function ambilSemuaData() {
               matchStatus = "LIVE";
             }
 
-            // Mencegah duplikasi entri pertandingan yang sama
             const isExist = dataJadwal.some(m => m.home === mapKlub[homeCode]);
             if (!isExist) {
               dataJadwal.push({
+                tanggal: tanggalAktif || "Hari Ini", // Memasukkan tanggal ke dalam JSON
                 home: mapKlub[homeCode],
                 away: mapKlub[awayCode],
                 info: infoText,
@@ -99,9 +103,7 @@ async function ambilSemuaData() {
 
       if (dataJadwal.length > 0) {
         fs.writeFileSync('./jadwal.json', JSON.stringify(dataJadwal, null, 2));
-        console.log(`SUKSES: Berhasil membuat jadwal.json dengan ${dataJadwal.length} pertandingan.`);
-      } else {
-        console.log("GAGAL: Karakter penanda jadwal tidak ditemukan di halaman depan.");
+        console.log(`Berhasil menulis jadwal.json lengkap dengan tanggal.`);
       }
     }
   } catch (e) { console.error("Error Scraper Jadwal:", e); }
