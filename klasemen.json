@@ -42,11 +42,11 @@
   {
     "pos": "5",
     "klub": "PERSIB BANDUNG",
-    "m": "8",
+    "m": "9",
     "mg": "5",
     "s": "1",
-    "k": "2",
-    "sg": "7",
+    "k": "3",
+    "sg": "6",
     "poin": "16"
   },
   {
@@ -61,6 +61,16 @@
   },
   {
     "pos": "7",
+    "klub": "JAVA UNITED FC",
+    "m": "9",
+    "mg": "4",
+    "s": "3",
+    "k": "2",
+    "sg": "3",
+    "poin": "13"
+  },
+  {
+    "pos": "8",
     "klub": "PERSEBAYA SURABAYA",
     "m": "9",
     "mg": "3",
@@ -70,7 +80,7 @@
     "poin": "13"
   },
   {
-    "pos": "8",
+    "pos": "9",
     "klub": "BHAYANGKARA LAMPUNG FC",
     "m": "9",
     "mg": "2",
@@ -80,7 +90,7 @@
     "poin": "12"
   },
   {
-    "pos": "9",
+    "pos": "10",
     "klub": "GARUDAYAKSA FC",
     "m": "9",
     "mg": "3",
@@ -88,16 +98,6 @@
     "k": "4",
     "sg": "-4",
     "poin": "11"
-  },
-  {
-    "pos": "10",
-    "klub": "JAVA UNITED FC",
-    "m": "8",
-    "mg": "3",
-    "s": "3",
-    "k": "2",
-    "sg": "2",
-    "poin": "10"
   },
   {
     "pos": "11",
