@@ -1,0 +1,30 @@
+name: Bot Auto Update Klasemen
+
+on:
+  schedule:
+    # Berjalan otomatis setiap 5 menit
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Tombol manual jika ingin update mendadak
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-node: '20'
+
+    - name: Jalankan Bot Scraper
+      run: node scraper.js
+
+    - name: Commit dan Push Perubahan Data
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@://github.com"
+        git add klasemen.json
+        git commit -m "Auto Update Skor Klasemen" || exit 0
+        git push
